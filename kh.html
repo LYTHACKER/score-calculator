@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kwanghua Score Calculator (动态版)</title>
+    <title>Score Calculator</title>
     
     <style>
         body {
@@ -24,16 +24,16 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             width: 90%;
             max-width: 550px; 
-            border: 1px solid #333; /* 添加一个细边框 */
+            border: 1px solid #333; 
         }
         h1 {
             text-align: center;
-            color: #ffffff; /* 标题用白色 */
+            color: #ffffff; 
         }
         .description {
             text-align: center;
-            color: #c0c0c0; /* 描述文字 */
-            background-color: #2a2a2a; /* 描述背景 */
+            color: #c0c0c0; 
+            background-color: #2a2a2a; 
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -41,13 +41,13 @@
         
         /* 科目输入区域 */
         .subject-group {
-            border-bottom: 2px solid #333; /* 分割线颜色加深 */
+            border-bottom: 2px solid #333; 
             margin-bottom: 20px;
             padding-bottom: 10px;
         }
         .subject-group h2 {
             font-size: 1.2em;
-            color: #f0f0f0; /* 小标题 */
+            color: #f0f0f0; 
             margin-top: 0;
         }
         
@@ -63,23 +63,21 @@
         }
         .subject-item label {
             margin-bottom: 5px;
-            color: #c0c0c0; /* 标签文字 */
+            color: #c0c0c0; 
             font-weight: bold;
         }
-        /* 特别标记主科 */
         .subject-item.main-subject label {
-            color: #4dabf7; /* 主科用亮蓝色 */
+            color: #4dabf7; 
         }
         
         .subject-item input {
             padding: 10px;
-            border: 1px solid #444; /* 输入框边框 */
-            background-color: #252525; /* 输入框背景 */
-            color: #f0f0f0; /* 输入文字颜色 */
+            border: 1px solid #444; 
+            background-color: #252525; 
+            color: #f0f0f0; 
             border-radius: 5px;
             font-size: 16px;
         }
-        /* 修复部分浏览器中数字输入框的自动完成样式 */
         .subject-item input:-webkit-autofill {
             -webkit-box-shadow: 0 0 0 30px #252525 inset !important;
             -webkit-text-fill-color: #f0f0f0 !important;
@@ -105,15 +103,9 @@
             background-color: #28a745; 
             color: white;
         }
-        .controls .add-btn:hover {
-            background-color: #218838;
-        }
         .controls .remove-btn {
             background-color: #dc3545; 
             color: white;
-        }
-        .controls .remove-btn:hover {
-            background-color: #c82333;
         }
 
         /* 主计算按钮 */
@@ -130,24 +122,34 @@
             margin-top: 20px;
             font-weight: bold;
         }
-        .calculate-btn:hover {
-            background-color: #0056b3;
-        }
         
         /* 结果区域 */
         #result {
             text-align: center;
             font-size: 22px; 
             font-weight: bold;
-            color: #ffffff; /* 结果文字 */
+            color: #ffffff; 
             margin-top: 25px;
-            background-color: #2a2a2a; /* 结果背景 */
-            border: 1px solid #444; /* 结果边框 */
+            background-color: #2a2a2a; 
+            border: 1px solid #444; 
             padding: 20px;
             border-radius: 8px;
             white-space: pre-wrap; 
             line-height: 1.6; 
-            visibility: hidden; /* 默认隐藏 */
+            visibility: hidden; 
+        }
+
+        /* 免责声明样式 */
+        .disclaimer {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dashed #333;
+        }
+        .disclaimer strong {
+            color: #999;
         }
     </style>
 </head>
@@ -216,77 +218,59 @@
                 </div>
             </div>
 
-            
-            <button type="button" class="calculate-btn" onclick="calculateAverage()">计算加权平均</button>
+            <button type="button" class="calculate-btn" onclick="calculateAverage()">计算总平均</button>
         </form>
 
         <div id="result"></div>
+        
+        <div class="disclaimer">
+            <strong>免责声明：</strong> 本计算器仅用于个人学习和估算分数之目的。计算结果基于您输入的数值以及预设的权重规则（主科 x2，其他科目 x1）。本结果不代表任何官方成绩单或机构的正式计算，不应用于任何正式或重要的决策。用户应自行承担使用本工具的风险。
+        </div>
     </div>
 
     <script>
-        // 用一个变量来追踪 "其他科目" 的编号
-        // 因为我们预设了到科目9，所以下一个从10开始
         let otherSubjectCounter = 10;
 
-        /**
-         * 添加一个新的 "其他科目" 输入框
-         */
         function addSubject() {
             const container = document.getElementById('other-subjects-container');
-            
-            // 1. 创建新的 div 容器
             const newSubject = document.createElement('div');
             newSubject.className = 'subject-item';
             
-            // 2. 创建 label
             const label = document.createElement('label');
             label.htmlFor = 'other-sub-' + otherSubjectCounter;
             label.innerText = '科目 ' + otherSubjectCounter + ' (x1):';
             
-            // 3. 创建 input
             const input = document.createElement('input');
             input.type = 'number';
             input.id = 'other-sub-' + otherSubjectCounter;
-            input.className = 'other-score'; // 关键 class，用于计算
+            input.className = 'other-score'; 
             input.placeholder = '输入分数';
             
-            // 4. 组装并添加到页面
             newSubject.appendChild(label);
             newSubject.appendChild(input);
             container.appendChild(newSubject);
             
-            // 5. 计数器+1
             otherSubjectCounter++;
         }
 
-        /**
-         * 移除最后一个 "其他科目"
-         */
         function removeSubject() {
             const container = document.getElementById('other-subjects-container');
             
-            // 确保至少有科目6-9（或其他你设定的最小值）
-            // 这里我们设定为最少保留4个 "其他科目"
+            // 最少保留4个 "其他科目"
             if (container.children.length > 4) { 
                 container.removeChild(container.lastChild);
-                
-                // 对应更新计数器
                 otherSubjectCounter--;
-                
             } else {
                 alert('至少需要保留4个其他科目。');
             }
         }
 
-        /**
-         * 计算总平均分
-         */
         function calculateAverage() {
             let totalWeightedScore = 0;
             
             // --- 1. 计算主科 (x2) ---
             const mainSubjects = document.querySelectorAll('.main-score');
-            let mainWeight = mainSubjects.length * 2; // 5 * 2 = 10
+            let mainWeight = mainSubjects.length * 2; 
             
             mainSubjects.forEach(function(input) {
                 let score = parseFloat(input.value) || 0;
@@ -295,11 +279,11 @@
 
             // --- 2. 计算其他科目 (x1) ---
             const otherSubjects = document.querySelectorAll('.other-score');
-            let otherWeight = otherSubjects.length; // 动态获取数量
+            let otherWeight = otherSubjects.length; 
             
             otherSubjects.forEach(function(input) {
                 let score = parseFloat(input.value) || 0;
-                totalWeightedScore += score; // 权重为 1
+                totalWeightedScore += score; 
             });
             
             // --- 3. 计算总分和平均分 ---
@@ -313,9 +297,9 @@
             // --- 4. 显示结果 ---
             const resultElement = document.getElementById('result');
             
-            resultElement.innerText = '加权总分: ' + totalWeightedScore.toFixed(2) +
+            resultElement.innerText = '总积分: ' + totalWeightedScore.toFixed(2) +
                                       '\n总权重 (5x2 + ' + otherWeight + 'x1): ' + totalWeight +
-                                      '\n您的加权总平均分是: ' + average.toFixed(2);
+                                      '\n您的总平均分是: ' + average.toFixed(2);
             
             resultElement.style.visibility = 'visible';
         }
