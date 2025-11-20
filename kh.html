@@ -3,66 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加权平均计算器</title>
+    <title>Kwanghua Score Calculator (动态版)</title>
     
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #121212; /* 深色背景 */
+            color: #f0f0f0; /* 浅色文字 */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px 0; /* 增加上下边距 */
+            padding: 30px 0;
             margin: 0;
         }
         .container {
-            background-color: #fff;
+            background-color: #1e1e1e; /* 容器背景 (比body稍亮) */
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             width: 90%;
-            max-width: 550px; /* 稍微加宽一点 */
+            max-width: 550px; 
+            border: 1px solid #333; /* 添加一个细边框 */
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #ffffff; /* 标题用白色 */
         }
         .description {
             text-align: center;
-            color: #666;
-            background-color: #eee;
+            color: #c0c0c0; /* 描述文字 */
+            background-color: #2a2a2a; /* 描述背景 */
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
-        .input-group {
+        
+        /* 科目输入区域 */
+        .subject-group {
+            border-bottom: 2px solid #333; /* 分割线颜色加深 */
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .subject-group h2 {
+            font-size: 1.2em;
+            color: #f0f0f0; /* 小标题 */
+            margin-top: 0;
+        }
+        
+        .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 15px; 
-            margin-bottom: 20px;
         }
+        
         .subject-item {
             display: flex;
             flex-direction: column;
         }
         .subject-item label {
             margin-bottom: 5px;
-            color: #555;
-            font-weight: bold; /* 标签加粗 */
+            color: #c0c0c0; /* 标签文字 */
+            font-weight: bold;
         }
         /* 特别标记主科 */
         .subject-item.main-subject label {
-            color: #0056b3; /* 主科用蓝色 */
+            color: #4dabf7; /* 主科用亮蓝色 */
         }
         
         .subject-item input {
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #444; /* 输入框边框 */
+            background-color: #252525; /* 输入框背景 */
+            color: #f0f0f0; /* 输入文字颜色 */
             border-radius: 5px;
             font-size: 16px;
         }
-        button {
+        /* 修复部分浏览器中数字输入框的自动完成样式 */
+        .subject-item input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #252525 inset !important;
+            -webkit-text-fill-color: #f0f0f0 !important;
+        }
+
+        /* 控制按钮区域 */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .controls button {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .controls .add-btn {
+            background-color: #28a745; 
+            color: white;
+        }
+        .controls .add-btn:hover {
+            background-color: #218838;
+        }
+        .controls .remove-btn {
+            background-color: #dc3545; 
+            color: white;
+        }
+        .controls .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* 主计算按钮 */
+        .calculate-btn {
             width: 100%;
             padding: 15px;
             background-color: #007BFF;
@@ -72,24 +127,26 @@
             font-size: 18px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-top: 20px;
+            font-weight: bold;
         }
-        button:hover {
+        .calculate-btn:hover {
             background-color: #0056b3;
         }
         
         /* 结果区域 */
         #result {
             text-align: center;
-            font-size: 22px; /* 调整字体大小 */
+            font-size: 22px; 
             font-weight: bold;
-            color: #333;
+            color: #ffffff; /* 结果文字 */
             margin-top: 25px;
-            background-color: #f9f9f9;
-            border: 1px solid #e0e0e0;
+            background-color: #2a2a2a; /* 结果背景 */
+            border: 1px solid #444; /* 结果边框 */
             padding: 20px;
             border-radius: 8px;
-            white-space: pre-wrap; /* 允许换行符 \n 生效 */
-            line-height: 1.6; /* 增加行高 */
+            white-space: pre-wrap; 
+            line-height: 1.6; 
             visibility: hidden; /* 默认隐藏 */
         }
     </style>
@@ -97,119 +154,169 @@
 <body>
 
     <div class="container">
-        <h1>加权平均计算器 (14科目)</h1>
+        <h1>Kwanghua Score Calculator</h1>
         
         <p class="description">
-            计算规则: <br>
-            <strong>主科 (前5科)</strong> 分数 x 2 <br>
-            <strong>科目 (后9科)</strong> 分数 x 1 <br>
-            总分将除以 <strong>19</strong>
+            规则: <strong>主科 (x2)</strong>, <strong>其他科目 (x1)</strong>。
+            <br>总权重将自动计算。
         </p>
         
         <form id="gradeForm">
-            <div class="input-group">
-                
-                <div class="subject-item main-subject">
-                    <label for="sub1">主科 1 (x2):</label>
-                    <input type="number" id="sub1" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item main-subject">
-                    <label for="sub2">主科 2 (x2):</label>
-                    <input type="number" id="sub2" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item main-subject">
-                    <label for="sub3">主科 3 (x2):</label>
-                    <input type="number" id="sub3" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item main-subject">
-                    <label for="sub4">主科 4 (x2):</label>
-                    <input type="number" id="sub4" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item main-subject">
-                    <label for="sub5">主科 5 (x2):</label>
-                    <input type="number" id="sub5" class="subject-score" placeholder="输入分数">
-                </div>
-
-                <div class="subject-item">
-                    <label for="sub6">科目 6 (x1):</label>
-                    <input type="number" id="sub6" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub7">科目 7 (x1):</label>
-                    <input type="number" id="sub7" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub8">科目 8 (x1):</label>
-                    <input type="number" id="sub8" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub9">科目 9 (x1):</label>
-                    <input type="number" id="sub9" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub10">科目 10 (x1):</label>
-                    <input type="number" id="sub10" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub11">科目 11 (x1):</label>
-                    <input type="number" id="sub11" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub12">科目 12 (x1):</label>
-                    <input type="number" id="sub12" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub13">科目 13 (x1):</label>
-                    <input type="number" id="sub13" class="subject-score" placeholder="输入分数">
-                </div>
-                <div class="subject-item">
-                    <label for="sub14">科目 14 (x1):</label>
-                    <input type="number" id="sub14" class="subject-score" placeholder="输入分数">
+            
+            <div class="subject-group">
+                <h2>主科 (x2)</h2>
+                <div class="input-grid">
+                    <div class="subject-item main-subject">
+                        <label for="sub1">华文 (x2):</label>
+                        <input type="number" id="sub1" class="main-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item main-subject">
+                        <label for="sub2">英文 (x2):</label>
+                        <input type="number" id="sub2" class="main-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item main-subject">
+                        <label for="sub3">马来文 (x2):</label>
+                        <input type="number" id="sub3" class="main-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item main-subject">
+                        <label for="sub4">科学 (x2):</label>
+                        <input type="number" id="sub4" class="main-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item main-subject">
+                        <label for="sub5">数学 (x2):</label>
+                        <input type="number" id="sub5" class="main-score" placeholder="输入分数">
+                    </div>
                 </div>
             </div>
+
+            <div class="subject-group">
+                <h2>其他科目 (x1)</h2>
+                <div class="input-grid" id="other-subjects-container">
+                    <div class="subject-item">
+                        <label for="other-sub-6">科目 6 (x1):</label>
+                        <input type="number" id="other-sub-6" class="other-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item">
+                        <label for="other-sub-7">科目 7 (x1):</label>
+                        <input type="number" id="other-sub-7" class="other-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item">
+                        <label for="other-sub-8">科目 8 (x1):</label>
+                        <input type="number" id="other-sub-8" class="other-score" placeholder="输入分数">
+                    </div>
+                    <div class="subject-item">
+                        <label for="other-sub-9">科目 9 (x1):</label>
+                        <input type="number" id="other-sub-9" class="other-score" placeholder="输入分数">
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button type="button" class="add-btn" onclick="addSubject()">+ 添加一个科目</button>
+                    <button type="button" class="remove-btn" onclick="removeSubject()">- 移除最后一个科目</button>
+                </div>
+            </div>
+
             
-            <button type="button" onclick="calculateAverage()">计算加权平均</button>
+            <button type="button" class="calculate-btn" onclick="calculateAverage()">计算加权平均</button>
         </form>
 
         <div id="result"></div>
     </div>
 
     <script>
+        // 用一个变量来追踪 "其他科目" 的编号
+        // 因为我们预设了到科目9，所以下一个从10开始
+        let otherSubjectCounter = 10;
+
+        /**
+         * 添加一个新的 "其他科目" 输入框
+         */
+        function addSubject() {
+            const container = document.getElementById('other-subjects-container');
+            
+            // 1. 创建新的 div 容器
+            const newSubject = document.createElement('div');
+            newSubject.className = 'subject-item';
+            
+            // 2. 创建 label
+            const label = document.createElement('label');
+            label.htmlFor = 'other-sub-' + otherSubjectCounter;
+            label.innerText = '科目 ' + otherSubjectCounter + ' (x1):';
+            
+            // 3. 创建 input
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = 'other-sub-' + otherSubjectCounter;
+            input.className = 'other-score'; // 关键 class，用于计算
+            input.placeholder = '输入分数';
+            
+            // 4. 组装并添加到页面
+            newSubject.appendChild(label);
+            newSubject.appendChild(input);
+            container.appendChild(newSubject);
+            
+            // 5. 计数器+1
+            otherSubjectCounter++;
+        }
+
+        /**
+         * 移除最后一个 "其他科目"
+         */
+        function removeSubject() {
+            const container = document.getElementById('other-subjects-container');
+            
+            // 确保至少有科目6-9（或其他你设定的最小值）
+            // 这里我们设定为最少保留4个 "其他科目"
+            if (container.children.length > 4) { 
+                container.removeChild(container.lastChild);
+                
+                // 对应更新计数器
+                otherSubjectCounter--;
+                
+            } else {
+                alert('至少需要保留4个其他科目。');
+            }
+        }
+
+        /**
+         * 计算总平均分
+         */
         function calculateAverage() {
             let totalWeightedScore = 0;
-            const mainSubjectCount = 5;
-            const totalSubjectCount = 14;
-            const totalWeight = 19; // (5 * 2) + (9 * 1) = 19
             
-            // 循环遍历所有14个科目
-            for (let i = 1; i <= totalSubjectCount; i++) {
-                
-                // 1. 找到输入框并获取分数 (空值计为0)
-                let scoreString = document.getElementById('sub' + i).value;
-                let score = parseFloat(scoreString) || 0;
-                
-                // 2. 检查是否为主科 (前5个)
-                if (i <= mainSubjectCount) {
-                    // 主科：分数 x 2
-                    totalWeightedScore += (score * 2);
-                } else {
-                    // 普通科目：分数 x 1
-                    totalWeightedScore += score;
-                }
+            // --- 1. 计算主科 (x2) ---
+            const mainSubjects = document.querySelectorAll('.main-score');
+            let mainWeight = mainSubjects.length * 2; // 5 * 2 = 10
+            
+            mainSubjects.forEach(function(input) {
+                let score = parseFloat(input.value) || 0;
+                totalWeightedScore += (score * 2);
+            });
+
+            // --- 2. 计算其他科目 (x1) ---
+            const otherSubjects = document.querySelectorAll('.other-score');
+            let otherWeight = otherSubjects.length; // 动态获取数量
+            
+            otherSubjects.forEach(function(input) {
+                let score = parseFloat(input.value) || 0;
+                totalWeightedScore += score; // 权重为 1
+            });
+            
+            // --- 3. 计算总分和平均分 ---
+            const totalWeight = mainWeight + otherWeight;
+            
+            let average = 0;
+            if (totalWeight > 0) {
+                average = totalWeightedScore / totalWeight;
             }
             
-            // 3. 计算加权平均分 (总加权分 / 总权重)
-            let average = totalWeightedScore / totalWeight;
+            // --- 4. 显示结果 ---
+            const resultElement = document.getElementById('result');
             
-            // 4. 找到显示结果的元素
-            let resultElement = document.getElementById('result');
-            
-            // 5. 显示加权总分 和 加权平均分 (保留两位小数)
-            //    \n 是换行符
-            resultElement.innerText = '加权总分 (满分1900): ' + totalWeightedScore.toFixed(2) + 
+            resultElement.innerText = '加权总分: ' + totalWeightedScore.toFixed(2) +
+                                      '\n总权重 (5x2 + ' + otherWeight + 'x1): ' + totalWeight +
                                       '\n您的加权总平均分是: ' + average.toFixed(2);
             
-            // 6. 让结果可见
             resultElement.style.visibility = 'visible';
         }
     </script>
